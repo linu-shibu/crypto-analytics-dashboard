@@ -1,0 +1,13 @@
+# Java / Spring Boot
+target/
+*.log
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# OS
+.DS_Store
+Thumbs.db
