@@ -1,22 +1,24 @@
 package com.streaming.backend.controller;
 
+import com.streaming.backend.model.MessageRequest;
 import com.streaming.backend.service.KafkaMessageProducer;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api")
 public class KafkaController {
 
-    private final KafkaMessageProducer producer;
+    private final KafkaMessageProducer producerService;
 
-    public KafkaController(KafkaMessageProducer producer) {
-        this.producer = producer;
+    public KafkaController(KafkaMessageProducer producerService) {
+        this.producerService = producerService;
     }
 
-    @GetMapping("/publish")
-    public String publishMessage(@RequestParam String message) {
-        producer.sendMessage(message);
-        return "📨 Message published: " + message;
+    @PostMapping("/publish")
+    public ResponseEntity<String> publishMessage(@RequestBody MessageRequest request) {
+        producerService.sendMessage(request.getContent());
+        return ResponseEntity.ok("Message published successfully");
     }
+
 }
