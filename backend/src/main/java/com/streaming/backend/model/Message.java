@@ -1,56 +1,38 @@
 package com.streaming.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "messages")
 public class Message {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ best for MySQL auto-increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // Getters and Setters
+    // (use Lombok @Data if you already have it set up)
+    @Setter
+    @Getter
     private String content;
 
-    @Column(nullable = false)
     private String sender;
 
-    @Column(nullable = false)
-    private String timestamp;
+    private LocalDateTime timestamp;
 
-    // --- getters and setters ---
+    // Constructors
+    public Message() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
+    public Message(String content, String sender, LocalDateTime timestamp) {
         this.content = content;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
         this.sender = sender;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+
 }
 
