@@ -16,27 +16,45 @@ import java.util.Map;
 public class CryptoConsumer {
     private final CryptoPriceRepository repo;
     private final StreamService streamService;
+    private final ClickHouseService clickHouseService;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CryptoConsumer(CryptoPriceRepository repo, StreamService streamService) {
+    public CryptoConsumer(CryptoPriceRepository repo,
+                          StreamService streamService,
+                          ClickHouseService clickHouseService) {
         this.repo = repo;
         this.streamService = streamService;
+        this.clickHouseService = clickHouseService;
     }
 
     @KafkaListener(topics = "crypto-prices", groupId = "crypto-group")
     public void consume(String json) throws Exception {
-        Map<String, String> map = mapper.readValue(json, new TypeReference<>() {});
+        System.out.println("📥 Consumed from Kafka: " + json);
+
+        Map<String, Object> root = mapper.readValue(json, new TypeReference<>() {});
+        Map<String, Object> data = (Map<String, Object>) root.get("data");
+
+        if (data == null) {
+            System.err.println("⚠️ Skipping message without 'data': " + json);
+            return;
+        }
+
+        String symbol = (String) data.get("s");   // e.g., "BTCUSDT"
+        String rawPrice = (String) data.get("p"); // price string
+        Double price = Double.valueOf(rawPrice);
         LocalDateTime now = LocalDateTime.now();
 
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            CryptoPrice price = new CryptoPrice();
-            price.setSymbol(entry.getKey());
-            price.setPrice(Double.valueOf(entry.getValue()));
-            price.setTimestamp(now);
+        // Save into MySQL
+        CryptoPrice entity = new CryptoPrice(null, symbol, price, now);
+        CryptoPrice saved = repo.save(entity);
 
-            CryptoPrice saved = repo.save(price);
-            streamService.publish(new CryptoPriceDto(saved));
-        }
+        // Save into ClickHouse
+        clickHouseService.savePrice(symbol, price, now);
+
+        // Publish to SSE
+        streamService.publish(new CryptoPriceDto(saved));
     }
+
 }
+
 

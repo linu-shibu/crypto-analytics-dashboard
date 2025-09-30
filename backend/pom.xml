@@ -56,6 +56,30 @@
             <version>0.6.2</version>
         </dependency>
 
+        <!-- Apache HttpClient5 - full set -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+<!--            <version>5.2.1</version>-->
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.httpcomponents.client5</groupId>-->
+<!--            <artifactId>httpclient5-fluent</artifactId>-->
+<!--            <version>5.3.1</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.httpcomponents.core5</groupId>-->
+<!--            <artifactId>httpcore5</artifactId>-->
+<!--            <version>5.2.4</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.httpcomponents.core5</groupId>-->
+<!--            <artifactId>httpcore5-h2</artifactId>-->
+<!--            <version>5.2.4</version>-->
+<!--        </dependency>-->
+
+
+
         <!-- MySQL driver -->
         <dependency>
             <groupId>com.mysql</groupId>

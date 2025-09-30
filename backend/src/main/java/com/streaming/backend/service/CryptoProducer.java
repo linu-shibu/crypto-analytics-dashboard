@@ -20,33 +20,37 @@ public class CryptoProducer {
 
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println("✅ Connected to CoinCap WebSocket");
+        System.out.println("✅ Connected to Binance WebSocket");
     }
 
     @OnMessage
     public void onMessage(String message) {
-        // Forward WebSocket messages into Kafka
+        System.out.println("💹 Incoming Binance message: " + message);
+
+        // Forward raw Binance payload to Kafka
         kafkaTemplate.send(TOPIC, message);
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        System.err.println("❌ WebSocket error: " + throwable.getMessage());
+        System.err.println("❌ Binance WebSocket error: " + throwable.getMessage());
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("🔌 WebSocket closed: " + closeReason);
+        System.out.println("🔌 Binance WebSocket closed: " + closeReason);
     }
 
     @PostConstruct
     public void start() {
         try {
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            String uri = "wss://ws.coincap.io/prices?assets=bitcoin,ethereum,solana";
-            container.connectToServer(this, URI.create(uri));
+//            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+//            // Multi-stream: BTC, ETH, SOL
+//            String uri = "wss://stream.binance.com:9443/stream?streams=btcusdt@trade/ethusdt@trade/solusdt@trade";
+//            container.connectToServer(this, URI.create(uri));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
