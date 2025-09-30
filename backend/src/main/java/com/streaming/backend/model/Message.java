@@ -12,17 +12,23 @@ import java.time.LocalDateTime;
 public class Message {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // Getters and Setters
     // (use Lombok @Data if you already have it set up)
+    @Column(nullable = false)
     @Setter
     @Getter
     private String content;
 
+    @Getter
     private String sender;
 
+    @Getter
+    @Setter
+    @Column(nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
@@ -34,7 +40,6 @@ public class Message {
         this.sender = sender;
         this.timestamp = timestamp;
     }
-
 
 }
 
