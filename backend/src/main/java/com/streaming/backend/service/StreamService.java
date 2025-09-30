@@ -1,7 +1,6 @@
 package com.streaming.backend.service;
 
-import com.streaming.backend.dto.MessageDto;
-import com.streaming.backend.model.Message;
+import com.streaming.backend.dto.CryptoPriceDto;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -9,16 +8,14 @@ import reactor.core.publisher.Sinks;
 
 @Service
 public class StreamService {
-    private final Sinks.Many<Message> sink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<CryptoPriceDto> sink = Sinks.many().multicast().onBackpressureBuffer();
 
-    public void publish(Message message) {
-        sink.tryEmitNext(message);
+    public void publish(CryptoPriceDto dto) {
+        sink.tryEmitNext(dto);
     }
 
-    public Flux<ServerSentEvent<MessageDto>> stream() {
-        return sink.asFlux().map(msg ->
-                ServerSentEvent.builder(new MessageDto(msg.getId(), msg.getContent(), msg.getTimestamp())).build()
-        );
+    public Flux<ServerSentEvent<CryptoPriceDto>> stream() {
+        return sink.asFlux().map(dto -> ServerSentEvent.builder(dto).build());
     }
 }
 

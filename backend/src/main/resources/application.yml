@@ -1,25 +1,28 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9092    # Kafka broker address
+    bootstrap-servers: localhost:9092
     consumer:
-      group-id: demo-consumer            # Identifies this consumer group
-      auto-offset-reset: earliest        # If no offset is stored, read from beginning
+      group-id: crypto-group
+      auto-offset-reset: earliest
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
   datasource:
-    url: jdbc:mysql://localhost:3306/kafka_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: linu
-    password: linukafka
+    url: jdbc:mysql://localhost:3306/crypto_db
+    username: crypto_user
+    password: crypto_pass
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update   # create / update / validate / none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
 
-server:
-  port: 8080
+clickhouse:
+  url: jdbc:clickhouse://localhost:8123/crypto_db
+  username: default
+  password: ""

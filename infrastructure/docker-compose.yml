@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -22,18 +22,27 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   mysql:
-    image: mysql:8
-    container_name: mysql-db
-    restart: always
+    image: mysql:8.0
+    container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: kafka_db
-      MYSQL_USER: linu
-      MYSQL_PASSWORD: linukafka
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: crypto_db
+      MYSQL_USER: crypto_user
+      MYSQL_PASSWORD: crypto_pass
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.8
+    container_name: clickhouse
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native TCP client
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
 volumes:
   mysql_data:
+  clickhouse_data:
