@@ -32,6 +32,20 @@ public class TradeController {
         return tradeRepository.findAll(pageable);
     }
 
+    @GetMapping("/{symbol}")
+    public Page<Trade> getTradesBySymbol(
+            @PathVariable String symbol,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "timestamp") String sortBy,
+            @RequestParam(defaultValue = "desc") String order
+    ) {
+        Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return tradeRepository.findBySymbolIgnoreCase(symbol, pageable);
+    }
+
+
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Trade> streamTrades() {
         return tradeSink.asFlux();

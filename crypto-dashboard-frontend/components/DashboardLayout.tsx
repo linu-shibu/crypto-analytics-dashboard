@@ -1,63 +1,51 @@
+// app/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
-import { FiSearch, FiSun, FiMoon } from "react-icons/fi";
+import MarketOverview from "@/components/widgets/MarketOverview";
+import PriceHistory from "@/components/widgets/PriceHistory";
+import VolumeChart from "@/components/widgets/VolumeChart";
+import TradesTable from "@/components/widgets/TradesTable";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [dark, setDark] = useState(true);
-
-  // Toggle Tailwind "dark" class on <html>
-  useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [dark]);
-
+export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* persistent sidebar */}
-      <Sidebar />
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col p-6">
+        <h1 className="text-2xl font-bold text-blue-600 mb-6">CryptoDash</h1>
+        <nav className="flex flex-col gap-4">
+          <a href="#" className="hover:text-blue-500">Dashboard</a>
+          <a href="#" className="hover:text-blue-500">Markets</a>
+          <a href="#" className="hover:text-blue-500">Trades</a>
+          <a href="#" className="hover:text-blue-500">Analytics</a>
+        </nav>
+      </aside>
 
-      {/* main area */}
-      <div className="flex-1 flex flex-col">
-        {/* header */}
-        <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search symbol (eg. BTCUSDT)"
-                className="w-64 md:w-96 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            </div>
+      {/* Main Content */}
+      <main className="flex-1 p-6 overflow-y-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Market Overview */}
+          <div className="lg:col-span-1">
+            {/* <MarketOverview /> */}
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setDark((d) => !d)}
-              aria-label="Toggle theme"
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              {dark ? <FiSun size={18} /> : <FiMoon size={18} />}
-            </button>
-
-            <div className="flex items-center gap-3">
-              <img src="/avatar.png" alt="Avatar" className="w-9 h-9 rounded-full object-cover" />
-              <div className="hidden md:block">
-                <div className="text-sm font-medium">Your Name</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">SDE · Realtime</div>
-              </div>
-            </div>
+          {/* Price History */}
+          <div className="lg:col-span-2">
+            <PriceHistory />
           </div>
-        </header>
+        </div>
 
-        {/* content */}
-        <main className="p-6 overflow-auto">{children}</main>
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          {/* Volume Chart */}
+          <div className="lg:col-span-2">
+            <VolumeChart />
+          </div>
+
+          {/* Trades Table */}
+          <div className="lg:col-span-1">
+            <TradesTable />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
