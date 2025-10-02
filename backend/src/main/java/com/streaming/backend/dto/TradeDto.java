@@ -6,9 +6,13 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CryptoPriceDto {
+public class TradeDto {
+    @JsonProperty("t") private Long tradeId;
     @JsonProperty("s") private String symbol;
-    @JsonProperty("c") private String lastPrice; // Binance sends as string
-    @JsonProperty("E") private Long eventTime;
+    @JsonProperty("p") private String price;
+    @JsonProperty("q") private String quantity;
+    @JsonProperty("E") private Long timestamp;
+    @JsonProperty("m") private boolean buyerMaker;
 }
+
 

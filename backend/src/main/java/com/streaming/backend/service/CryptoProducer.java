@@ -1,9 +1,16 @@
 package com.streaming.backend.service;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.websocket.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streaming.backend.dto.CryptoPriceDto;
+import com.streaming.backend.dto.TradeDto;
+import com.streaming.backend.model.CryptoPrice;
+import com.streaming.backend.model.Trade;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.websocket.*;
 
 import java.net.URI;
 
@@ -11,46 +18,79 @@ import java.net.URI;
 @ClientEndpoint
 public class CryptoProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private static final String TOPIC = "crypto-prices";
+    private final KafkaTemplate<String, Trade> tradeKafkaTemplate;
+    private final KafkaTemplate<String, CryptoPrice> priceKafkaTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public CryptoProducer(KafkaTemplate<String, String> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
-
-    @OnOpen
-    public void onOpen(Session session) {
-        System.out.println("✅ Connected to Binance WebSocket");
+    public CryptoProducer(KafkaTemplate<String, Trade> tradeKafkaTemplate,
+                          KafkaTemplate<String, CryptoPrice> priceKafkaTemplate) {
+        this.tradeKafkaTemplate = tradeKafkaTemplate;
+        this.priceKafkaTemplate = priceKafkaTemplate;
     }
 
     @OnMessage
     public void onMessage(String message) {
-        System.out.println("💹 Incoming Binance message: " + message);
+        try {
+            JsonNode root = objectMapper.readTree(message);
+            JsonNode data = root.get("data");
 
-        // Forward raw Binance payload to Kafka
-        kafkaTemplate.send(TOPIC, message);
-    }
+            if (data == null) return;
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.err.println("❌ Binance WebSocket error: " + throwable.getMessage());
-    }
+            String eventType = data.get("e").asText(); // "trade" or "24hrTicker"
+            String symbol = data.get("s").asText().toLowerCase();
 
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("🔌 Binance WebSocket closed: " + closeReason);
+            if ("trade".equals(eventType)) {
+                // ✅ Parse JSON into DTO
+                TradeDto dto = objectMapper.treeToValue(data, TradeDto.class);
+
+                // ✅ Convert DTO -> Entity
+                Trade trade = Trade.builder()
+                        .tradeId(dto.getTradeId())
+                        .symbol(dto.getSymbol())
+                        .price(Double.parseDouble(dto.getPrice()))
+                        .quantity(Double.parseDouble(dto.getQuantity()))
+                        .timestamp(dto.getTimestamp())
+                        .buyerMaker(dto.isBuyerMaker())
+                        .build();
+
+                // ✅ Send clean entity into Kafka
+                tradeKafkaTemplate.send("trades-" + symbol, trade);
+                System.out.println("📤 Sent Trade to trades-" + symbol + ": " + trade);
+            }
+            else if ("24hrTicker".equals(eventType)) {
+                // ✅ Parse JSON into DTO
+                CryptoPriceDto dto = objectMapper.treeToValue(data, CryptoPriceDto.class);
+
+                // ✅ Convert DTO -> Entity
+                CryptoPrice price = CryptoPrice.builder()
+                        .symbol(dto.getSymbol())
+                        .price(Double.parseDouble(dto.getLastPrice()))
+                        .timestamp(dto.getEventTime())
+                        .build();
+
+                // ✅ Send clean entity into Kafka
+                priceKafkaTemplate.send("prices-" + symbol, price);
+                System.out.println("📤 Sent Price to prices-" + symbol + ": " + price);
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error processing Binance event: " + e.getMessage());
+        }
     }
 
     @PostConstruct
     public void start() {
         try {
-//            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-//            // Multi-stream: BTC, ETH, SOL
-//            String uri = "wss://stream.binance.com:9443/stream?streams=btcusdt@trade/ethusdt@trade/solusdt@trade";
-//            container.connectToServer(this, URI.create(uri));
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            String uri = "wss://stream.binance.com:9443/stream?streams="
+                    + "btcusdt@trade/btcusdt@ticker/"
+                    + "ethusdt@trade/ethusdt@ticker/"
+                    + "solusdt@trade/solusdt@ticker";
+            container.connectToServer(this, URI.create(uri));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
 

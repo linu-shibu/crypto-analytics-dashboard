@@ -2,28 +2,20 @@ package com.streaming.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "crypto_prices")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table(name = "crypto_prices")
 public class CryptoPrice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
-    @Setter
-    private String symbol;
-
-    @Getter
-    @Setter
-    private Double price;
-
-    @Getter
-    @Setter
-    private LocalDateTime timestamp;
-
+    private String symbol;      // BTCUSDT
+    private double price;       // latest price
+    private long timestamp;     // event time (Binance 'E')
 }
