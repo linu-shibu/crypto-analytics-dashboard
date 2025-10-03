@@ -48,7 +48,7 @@ public class TradeController {
 
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Trade> streamTrades() {
-        return tradeSink.asFlux();
+        return tradeSink.asFlux().share();
     }
 
     @GetMapping(path = "/{symbol}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

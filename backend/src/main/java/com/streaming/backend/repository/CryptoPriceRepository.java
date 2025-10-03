@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CryptoPriceRepository extends JpaRepository<CryptoPrice, Long> {
     Page<CryptoPrice> findBySymbolIgnoreCase(String symbol, Pageable pageable);
+    CryptoPrice findTopBySymbolOrderByTimestampDesc(String symbol);
 }
 
 

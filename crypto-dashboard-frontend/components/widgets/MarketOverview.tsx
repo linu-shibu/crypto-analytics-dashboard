@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 interface MarketData {
   symbol: string;
   price: number;
-  change24h?: number;
-  volume24h?: number;
+  change24h: number;
+  volume24h: number;
 }
 
 const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
@@ -14,55 +14,36 @@ const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
 export default function MarketOverview() {
   const [data, setData] = useState<MarketData[]>([]);
 
+  async function fetchLatest(symbol: string) {
+    try {
+      const res = await fetch(`http://localhost:8080/api/prices/${symbol}/latest`);
+      const json = await res.json();
+      if (json) {
+        setData((prev) => [
+          ...prev.filter((d) => d.symbol !== symbol),
+          {
+            symbol: json.symbol,
+            price: json.price,
+            change24h: parseFloat(json.change24h ?? 0),
+            volume24h: parseFloat(json.volume24h ?? 0),
+          },
+        ]);
+      }
+    } catch (err) {
+      console.error(`❌ Failed to fetch /latest for ${symbol}:`, err);
+    }
+  }
+
   useEffect(() => {
-    // const sources: EventSource[] = [];
+    // fetch once on mount
+    symbols.forEach((s) => fetchLatest(s));
 
-    // async function fetchInitial(symbol: string) {
-    //   try {
-    //     const res = await fetch(
-    //       `http://localhost:8080/api/prices/${symbol}?page=0&size=1&sortBy=timestamp&order=desc`
-    //     );
-    //     const json = await res.json();
-    //     if (json.content && json.content.length > 0) {
-    //       const p = json.content[0];
-    //       setData((prev) => [
-    //         ...prev.filter((d) => d.symbol !== symbol),
-    //         { symbol, price: p.price, change24h: 0, volume24h: 0 },
-    //       ]);
-    //     }
-    //   } catch (err) {
-    //     console.error(`❌ Failed to fetch initial price for ${symbol}:`, err);
-    //   }
-    // }
+    // poll every 30s
+    const interval = setInterval(() => {
+      symbols.forEach((s) => fetchLatest(s));
+    }, 30000);
 
-    // // Fetch latest historic data first
-    // symbols.forEach((s) => fetchInitial(s));
-
-    // Then subscribe to live SSE per symbol
-    // symbols.forEach((symbol) => {
-    //   const es = new EventSource(
-    //     `http://localhost:8080/api/prices/${symbol}/stream`
-    //   );
-
-    //   es.onmessage = (event) => {
-    //     const priceObj = JSON.parse(event.data);
-    //     setData((prev) => [
-    //       ...prev?.filter((d) => d?.symbol !== symbol),
-    //       {
-    //         symbol,
-    //         price: priceObj.price,
-    //         change24h: 0, // TODO: fill when backend provides ticker data
-    //         volume24h: 0,
-    //       },
-    //     ]);
-    //   };
-
-    //   sources.push(es);
-    // });
-
-    // return () => {
-    //   sources.forEach((s) => s.close());
-    // };
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -78,24 +59,27 @@ export default function MarketOverview() {
           </tr>
         </thead>
         <tbody>
-          {data?.map((d) => (
-            <tr key={d.symbol} className="border-t dark:border-gray-700">
-              <td className="px-4 py-2 font-medium">{d.symbol}</td>
-              <td className="px-4 py-2">{d.price.toFixed(2)}</td>
-              <td
-                className={`px-4 py-2 ${
-                  d.change24h && d.change24h < 0
-                    ? "text-red-500"
-                    : "text-green-500"
-                }`}
-              >
-                {d.change24h?.toFixed(2)}%
-              </td>
-              <td className="px-4 py-2">
-                {d.volume24h ? d.volume24h.toFixed(0) : "-"}
-              </td>
-            </tr>
-          ))}
+          {symbols.map((s) => {
+            const d = data.find((row) => row.symbol === s);
+            return (
+              <tr key={s} className="border-t dark:border-gray-700">
+                <td className="px-4 py-2 font-medium">{s}</td>
+                <td className="px-4 py-2">
+                  {d ? d.price.toFixed(2) : "—"}
+                </td>
+                <td
+                  className={`px-4 py-2 ${
+                    d && d.change24h < 0 ? "text-red-500" : "text-green-500"
+                  }`}
+                >
+                  {d ? `${d.change24h.toFixed(2)}%` : "—"}
+                </td>
+                <td className="px-4 py-2">
+                  {d ? d.volume24h.toFixed(0) : "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

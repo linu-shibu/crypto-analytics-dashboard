@@ -46,7 +46,6 @@ export default function TradesTable() {
     eventSource = new EventSource(streamUrl);
 
     eventSource.onmessage = (event) => {
-        console.log("Trade stream in Trades table")
       const trade: Trade = JSON.parse(event.data);
       setTrades((prev) => [trade, ...prev].slice(0, 20));
     };
