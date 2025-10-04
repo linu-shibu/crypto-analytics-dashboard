@@ -30,7 +30,7 @@ public class RawTradesConsumer {
             // Insert asynchronously
             executor.submit(() -> {
 //                clickHouseService.saveTrade(trade);
-                System.out.println("💾 Stored raw trade in ClickHouse: " + trade);
+//                System.out.println("💾 Stored raw trade in ClickHouse: " + trade);
             });
 
         } catch (Exception e) {

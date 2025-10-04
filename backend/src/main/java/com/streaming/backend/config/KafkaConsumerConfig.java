@@ -6,6 +6,7 @@ import com.streaming.backend.model.Trade;
 import com.streaming.backend.model.CryptoPrice;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -42,10 +43,14 @@ public class KafkaConsumerConfig {
 //        factory.setConsumerFactory(tradeConsumerFactory());
 //        return factory;
 //    }
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     @Bean
     public ConsumerFactory<String, TradeDto> tradeDtoConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "trades-group");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
@@ -68,7 +73,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, CryptoPriceDto> priceDtoConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "prices-group");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 

@@ -35,7 +35,7 @@ export default function VolumeChart() {
 
     async function fetchHistory() {
       try {
-        let url =
+        const url =
           symbol === "ALL"
             ? `http://localhost:8080/api/trades?page=0&size=50&sortBy=timestamp&order=desc`
             : `http://localhost:8080/api/trades/${symbol}?page=0&size=50&sortBy=timestamp&order=desc`;
@@ -70,7 +70,7 @@ export default function VolumeChart() {
     fetchHistory();
 
     // SSE live stream
-    let streamUrl =
+    const streamUrl =
       symbol === "ALL"
         ? "http://localhost:8080/api/trades/stream"
         : `http://localhost:8080/api/trades/${symbol}/stream`;

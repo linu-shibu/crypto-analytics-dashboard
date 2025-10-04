@@ -34,7 +34,8 @@ export default function PriceHistory() {
         const json = await res.json();
 
         if (json.content) {
-          const history = json.content.reverse().map((p: any) => ({
+          console.log("json.content.reverse() ", json.content.reverse())
+          const history = json.content.reverse().map((p: Price) => ({
             symbol: p.symbol,
             price: p.price,
             timestamp: p.timestamp,

@@ -22,7 +22,7 @@ export default function TradesTable() {
 
     // 1. Fetch historical trades from MySQL
     async function fetchTrades() {
-      let url =
+      const url =
         symbol === "ALL"
           ? `http://localhost:8080/api/trades?page=0&size=20&sortBy=timestamp&order=desc`
           : `http://localhost:8080/api/trades/${symbol}?page=0&size=20&sortBy=timestamp&order=desc`;
@@ -38,7 +38,7 @@ export default function TradesTable() {
     fetchTrades();
 
     // 2. Subscribe to live trades via SSE
-    let streamUrl =
+    const streamUrl =
       symbol === "ALL"
         ? "http://localhost:8080/api/trades/stream"
         : `http://localhost:8080/api/trades/${symbol}/stream`;

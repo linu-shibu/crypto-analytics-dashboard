@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { FiHome, FiBarChart2, FiSettings, FiMenu } from "react-icons/fi";
 
@@ -20,9 +21,9 @@ export default function Sidebar() {
 
       {/* Links */}
       <nav className="flex flex-col gap-2 mt-6">
-        <a href="/" className="flex items-center gap-3 p-3 hover:bg-gray-700 rounded">
+        <Link href="/" className="flex items-center gap-3 p-3 hover:bg-gray-700 rounded">
           <FiHome /> {open && "Dashboard"}
-        </a>
+        </Link>
         <a href="/analytics" className="flex items-center gap-3 p-3 hover:bg-gray-700 rounded">
           <FiBarChart2 /> {open && "Analytics"}
         </a>
